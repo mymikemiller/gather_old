@@ -1,0 +1,11 @@
+{
+  "include": [
+    "src/gather_assets/assets/*",
+    "src/gather_assets/src/*"
+  ],
+  "compilerOptions": {
+    "target": "es5",
+    "jsx": "react",
+    "allowSyntheticDefaultImports": true
+  }
+}
