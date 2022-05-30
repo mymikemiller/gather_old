@@ -1,4 +1,3 @@
-import Map "mo:base/HashMap";
 import Nat "mo:base/Nat";
 
 module {
@@ -18,8 +17,8 @@ module {
     email: Text;
     phone: Text;
     picture: Text;
-    events_created: [Gathering];
-    events_responded: [Gathering];
+    gatherings_created: [Gathering];
+    gatherings_responded: [Gathering];
   };
 
   public type Gathering = {
@@ -28,6 +27,7 @@ module {
     datetime: Text;
     address: Text;
     items: [(Item, Nat)]; // (Item, Number of item originally needed)
+    responses: [(User, Response)];
   };
 
   public type Item = {
@@ -37,7 +37,7 @@ module {
 
   public type Response = {
     attending: Bool;
-    items: [Item];
+    items: [(Item, Nat)]; //(Item, number bringing)
     comment: ?Text;
   };
 

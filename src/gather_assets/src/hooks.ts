@@ -70,6 +70,6 @@ export const emptyProfile: Profile = {
   email: "",
   phone: "",
   picture: "",
-  events_created: [],
-  events_responded: [],
+  gatherings_created: [],
+  gatherings_responded: [],
 };
