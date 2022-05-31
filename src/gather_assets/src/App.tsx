@@ -8,10 +8,12 @@ import {
 import styled from "styled-components";
 import NotAuthenticated from "./components/NotAuthenticated";
 import Home from "./components/Home";
+import RsvpForm from "./components/RsvpForm";
 import { _SERVICE, Profile, User } from "../../declarations/gather/gather.did";
 import toast, { Toaster } from "react-hot-toast";
 import ErrorBoundary from "./components/ErrorBoundary";
 import {
+  Outlet,
   Route,
   Routes,
   useNavigate,
@@ -74,7 +76,7 @@ const App = () => {
     logout,
     actor,
     user,
-    setUser,
+    setUser
   } = useAuthClient();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -94,16 +96,8 @@ const App = () => {
     if (user && actor) {
       const incomingGatheringId = localStorage.getItem('incomingGatheringId');
       if (incomingGatheringId) {
-        console.log("setting gathering: " + incomingGatheringId);
-        //todo: Load the proper gathering page
-        // actor.addFeedKey(incomingGatheringId).then((result) => {
-        //   if ("ok" in result) {
-        //     setProfile(result.ok);
-        //     navigate('/manage');
-        //   } else {
-        //     toast.error("Error: " + Object.keys(result.err)[0]);
-        //   };
-        // });
+        // Load the proper rsvp page
+        navigate('/gathering/' + incomingGatheringId);
         localStorage.removeItem("incomingGatheringId");
       };
     };
@@ -180,27 +174,40 @@ const App = () => {
                   <ActionButton id="logout" onPress={logout}>
                     Log out
                   </ActionButton>
-                }>
-                </Route>
+                } />
                 <Route path="/create" element={
                   <ActionButton id="logout" onPress={logout}>
                     Log out
                   </ActionButton>
-                }>
-                </Route>
+                } />
+                <Route path="/gathering" element={
+                  <ActionButton id="logout" onPress={logout}>
+                    Log out
+                  </ActionButton>
+                } />
+                <Route path="/gathering/:gatheringId" element={
+                  <ActionButton id="logout" onPress={logout}>
+                    Log out
+                  </ActionButton>
+                } />
               </Routes>
               <h2>Gather</h2>
             </Header>
             <Main>
               <Flex maxWidth={700} margin="2rem auto" id="main-container">
                 <Routes>
-                  <Route path="/loading" element={<Loading />} />
                   <Route path="/" element={
                     <Flex direction="column">
                       <Home />
                       <NotAuthenticated />
                     </Flex>
                   } />
+                  <Route path="gathering" element={<Outlet />}>
+                    <Route path=":gatheringId" element={<RsvpForm />} />
+                    {/* <Route path=":gatheringId/edit" element={<EditGathering />} /> */}
+                    {/* <Route path="new" element={<NewGatheringForm />} /> */}
+                  </Route>
+                  <Route path="/loading" element={<Loading />} />
                   <Route path="/manage" element={<ManageProfile />} />
                   <Route path="/create" element={<CreateUser />} />
                 </Routes>

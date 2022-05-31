@@ -79,17 +79,17 @@ function ManageProfile() {
     profile: user.profile ?? emptyProfile,
   };
 
+  if (!gatherActor) {
+    // still waiting for gatherActor to be set, return null for now
+    return null;
+  }
+
   if (!user) {
-    console.log('There is no user, so returning null for ManageProfile component');
+    console.error('There is no user, so returning null for ManageProfile component');
     return null;
   }
 
   const { name } = user.profile;
-
-  if (gatherActor == undefined) {
-    console.log('gatherActor is undefined when trying to render ManageProfile');
-    return null;
-  }
 
   return (
     <>
