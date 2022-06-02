@@ -105,7 +105,7 @@ const App = () => {
 
   useEffect(() => {
     if (actor) {
-      actor.read().then((result) => {
+      actor.readUser().then((result) => {
         if ("ok" in result) {
           // Found user profile in IC. Load Home Page.
           setUser(result.ok);

@@ -50,11 +50,11 @@ function ManageProfile() {
   const deleteProfile = async () => {
     if (
       confirm(
-        "Are you sure you want to delete your contributor profile? This will be permanent!"
+        "Are you sure you want to delete your account? This will be permanent!"
       )
     ) {
-      const result = await actor?.delete();
-      toast.success("Contributor profile successfully deleted");
+      const result = await actor?.deleteUser();
+      toast.success("Profile successfully deleted");
       console.log(result);
       navigate("/");
     }

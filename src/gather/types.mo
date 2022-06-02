@@ -5,6 +5,7 @@ module {
   // between upgrades
   public type StableGather = {
       userEntries: [User];
+      gatheringEntries: [Gathering];
   };
 
   public type User = {
@@ -21,13 +22,18 @@ module {
     gatherings_responded: [Gathering];
   };
 
-  public type Gathering = {
+  public type GatheringInfo = {
     title: Text;
     description: Text;
     datetime: Text;
     address: Text;
     items: [(Item, Nat)]; // (Item, Number of item originally needed)
     responses: [(User, Response)];
+  };
+
+  public type Gathering = {
+    id: Nat;
+    info: GatheringInfo;
   };
 
   public type Item = {

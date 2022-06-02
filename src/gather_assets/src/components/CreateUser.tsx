@@ -23,9 +23,9 @@ const CreateUser = () => {
 
   const submitCallback = async (profile: Profile) => {
     // Handle creation and verification async
-    actor?.create(profile).then(async (createResponse) => {
+    actor?.createUser(profile).then(async (createResponse) => {
       if ("ok" in createResponse) {
-        const userResponse = await actor.read();
+        const userResponse = await actor.readUser();
         if ("ok" in userResponse) {
           setUser(userResponse.ok);
           navigate('/manage');
