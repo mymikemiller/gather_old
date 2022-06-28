@@ -9,6 +9,7 @@ import { emptyProfile } from "../hooks";
 import { useContext } from "react";
 import { AppContext } from "../App";
 import { useNavigate } from "react-router-dom";
+import { Heading } from '@adobe/react-spectrum';
 
 const CreateUser = () => {
   const navigate = useNavigate();
@@ -27,8 +28,12 @@ const CreateUser = () => {
       if ("ok" in createResponse) {
         const userResponse = await actor.readUser();
         if ("ok" in userResponse) {
-          setUser(userResponse.ok);
-          navigate('/manage');
+          setUser(userResponse.ok); // This will cause a redirect to the gathering rsvp page that they originally clicked
+          // if (gatheringId in local storage) {
+          //   navigate('/rsvp');
+          // } else {
+          //   navigate('/manage');
+          // }
         } else {
           console.error(userResponse.err);
           handleCreationError();
@@ -42,11 +47,14 @@ const CreateUser = () => {
   };
 
   return (
-    <ProfileForm
-      submitCallback={submitCallback}
-      actor={actor}
-      profile={emptyProfile}
-    />
+    <>
+      <Heading level={2}>Create Profile</Heading><br />
+      <ProfileForm
+        submitCallback={submitCallback}
+        actor={actor}
+        profile={emptyProfile}
+      />
+    </>
   );
 };
 

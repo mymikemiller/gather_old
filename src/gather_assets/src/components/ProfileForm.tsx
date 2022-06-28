@@ -55,7 +55,6 @@ class ProfileForm extends React.Component<Props> {
     const handleSubmit = this.handleSubmit.bind(this);
     return (
       <section>
-        <Heading level={1}>Create a Profile</Heading>
         <Form
           onSubmit={(e) => {
             e.preventDefault();

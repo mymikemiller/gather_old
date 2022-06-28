@@ -1,6 +1,6 @@
 import { ActorSubclass } from "@dfinity/agent";
 import toast from "react-hot-toast";
-import { User, Profile, _SERVICE } from "../../declarations/gather/gather.did";
+import { User, Profile, Rsvp, _SERVICE } from "../../declarations/gather/gather.did";
 
 export function compareProfiles(p1: any | null, p2: any) {
   if (!p1) return false;
@@ -28,6 +28,26 @@ export async function pushProfile(actor: ActorSubclass<_SERVICE>, profile: Profi
   } else {
     console.error(result.err);
     toast.error("Failed to save update to IC");
+    return;
+  }
+};
+
+export async function pushRsvp(actor: ActorSubclass<_SERVICE>, rsvp: Rsvp, gatheringId: bigint): Promise<boolean | undefined> {
+  const result = await actor!.rsvp(rsvp, gatheringId);
+  if ("ok" in result) {
+    toast.success('RSVP sent, thanks!');
+    return true;
+    // const profileResponse = await actor.read();
+    // if ("ok" in profileResponse) {
+    //   return profileResponse.ok;
+    // } else {
+    //   console.error(profileResponse.err);
+    //   toast.error("Failed to read profile from IC");
+    //   return;
+    // }
+  } else {
+    console.error(result.err);
+    toast.error("Failed to send RSVP");
     return;
   }
 };

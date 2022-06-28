@@ -109,7 +109,7 @@ module.exports = {
     new webpack.EnvironmentPlugin({
       NODE_ENV: "development",
       II_URL: isDevelopment
-        ? "http://localhost:8000/?canisterId=rkp4c-7iaaa-aaaaa-aaaca-cai#authorize"
+        ? "http://rrkah-fqaaa-aaaaa-aaaaq-cai.localhost:8000#authorize"
         : "https://identity.ic0.app/#authorize",
       ...canisterEnvVariables,
     }),

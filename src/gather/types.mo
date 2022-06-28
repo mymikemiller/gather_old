@@ -4,8 +4,8 @@ module {
   // Used to store the contents of the Gather canister in stable types
   // between upgrades
   public type StableGather = {
-      userEntries: [User];
-      gatheringEntries: [Gathering];
+    userEntries: [User];
+    gatheringEntries: [Gathering];
   };
 
   public type User = {
@@ -28,8 +28,10 @@ module {
     datetime: Text;
     address: Text;
     items: [(Item, Nat)]; // (Item, Number of item originally needed)
-    responses: [(User, Response)];
+    rsvps: [(User, Rsvp)];
   };
+
+  public type UserRsvp = (User, Rsvp);
 
   public type Gathering = {
     id: Nat;
@@ -41,15 +43,16 @@ module {
     description: Text;
   };
 
-  public type Response = {
+  public type Rsvp = {
     attending: Bool;
     items: [(Item, Nat)]; //(Item, number bringing)
     comment: ?Text;
   };
 
   public type Error = {
-    #NotFound;
-    #AlreadyExists;
+    #UserNotFound;
+    #UserAlreadyExists;
+    #GatheringNotFound;
     #NotAuthorized;
   };
 }

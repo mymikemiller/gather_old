@@ -105,14 +105,18 @@ const App = () => {
 
   useEffect(() => {
     if (actor) {
+      console.log('actor was set');
       actor.readUser().then((result) => {
         if ("ok" in result) {
+          console.log('found a user');
           // Found user profile in IC. Load Home Page.
           setUser(result.ok);
           if (compareProfiles(result.ok.profile, emptyProfile)) {
             // Authenticated but no profile
+            console.log('user matches empty profile');
             navigate('/create');
           } else {
+            console.log('user does not match empty profile, so loading manage');
             // Logged in with profile
             navigate('/manage');
           }
@@ -121,11 +125,14 @@ const App = () => {
             // Clear local delegation and log in
             toast.error("Your session expired. Please reauthenticate.");
             logout();
-          } else if ("NotFound" in result.err) {
+          } else if ("UserNotFound" in result.err) {
             // User has deleted account
+            console.log("User has deleted account");
             if (user) {
+              console.log("Yes user");
               toast.error("User profile not found. Please try creating again.");
             }
+            console.log("setting user to undefined and going to create");
             // Authenticated but no profile
             setUser(undefined);
             navigate('/create');
@@ -203,7 +210,7 @@ const App = () => {
                     </Flex>
                   } />
                   <Route path="gathering" element={<Outlet />}>
-                    <Route path=":gatheringId" element={<RsvpForm />} />
+                    <Route path=":gatheringId" element={<RsvpForm actor={actor!} user={user!} />} />
                     {/* <Route path=":gatheringId/edit" element={<EditGathering />} /> */}
                     {/* <Route path="new" element={<NewGatheringForm />} /> */}
                   </Route>

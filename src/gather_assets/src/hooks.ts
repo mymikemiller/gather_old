@@ -31,6 +31,7 @@ export function useAuthClient(props?: UseAuthClientProps) {
         identity: authClient?.getIdentity(),
       },
     });
+    console.log('Setting actor');
     setActor(actor);
   };
 

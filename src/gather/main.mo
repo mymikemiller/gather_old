@@ -20,6 +20,8 @@ actor Gather {
   public type User = Types.User;
   public type Profile = Types.Profile;
   public type Error = Types.Error;
+  public type Rsvp = Types.Rsvp;
+  public type UserRsvp = Types.UserRsvp;
   type StableGather = Types.StableGather;
   type GatheringInfo = Types.GatheringInfo;
   type Gathering = Types.Gathering;
@@ -130,6 +132,33 @@ actor Gather {
     };
   };
 
+  // // Update the RSVP for the user with the with the given principal with the
+  // // given newRsvp for the given Gathering. A null return value means we did not find a gathering to
+  // // update. 
+  // private func _updateGathering(principal: Principal, gathering: Gathering, newRsvp : Rsvp) : async ?Gathering {
+  //   // Associate user profile with their principal
+  //   let newGathering: Gathering = {
+  //     principal = principal;
+  //     profile = newProfile;
+  //   };
+
+  //   switch (getUser(principal)) {
+  //     // Do not allow updates to users that haven't been created yet
+  //     case null {
+  //       return null;
+  //     };
+  //     case (? existingUser) {
+  //       users := Trie.replace(
+  //         users,
+  //         key(principal),
+  //         Principal.equal,
+  //         ?newUser
+  //       ).0;
+  //       return Option.make(newUser);
+  //     };
+  //   };
+  // };
+
   // Public Application Interface
 
   // Create a user
@@ -166,7 +195,7 @@ actor Gather {
       };
       // Matches pattern of type - opt User
       case (? v) {
-        #err(#AlreadyExists);
+        #err(#UserAlreadyExists);
       }
     };
   };
@@ -182,7 +211,7 @@ actor Gather {
     };
 
     let user = getUser(callerId);
-    return Result.fromOption(user, #NotFound);
+    return Result.fromOption(user, #UserNotFound);
   };
 
   // Update user (the logged-in user who caused this message to be called)
@@ -200,7 +229,7 @@ actor Gather {
     switch (newUser) {
       case null {
       // Notify the caller that we did not find a user to update
-        #err(#NotFound);
+        #err(#UserNotFound);
       };
       case (? user) {
         #ok(());
@@ -221,7 +250,7 @@ actor Gather {
     switch (getUser(callerId)) {
       // Do not allow updates to users that haven't been created yet
       case null {
-        #err(#NotFound);
+        #err(#UserNotFound);
       };
       case (? user) {
         users := Trie.replace(
@@ -236,6 +265,19 @@ actor Gather {
   };
 
   /// Functions not related to user management: ///
+
+  public func getGathering(id: Nat): async ?Gathering {
+   gatherings.get(id);
+    // let gathering = gatherings.get(id);
+    // switch (gathering) {
+    //   case (null) {
+    //     #Err(#UserNotFound);
+    //   };
+    //   case (?gathering) {
+    //     #Ok(gathering);
+    //   };
+    // };
+  };
 
   public func getAllGatherings(): async [Gathering] {
     return Iter.toArray(gatherings.vals());
@@ -284,7 +326,51 @@ actor Gather {
 
   func randomNumber() : async Nat {
       return xorshift128plus();
-  }
+  };
 
+  // Add an RSVP
+  public shared(msg) func rsvp(rsvp : Rsvp, gatheringId : Nat) : async Result.Result<(), Error> {
+    // Get caller principal
+    let callerId = msg.caller;
 
+    // Reject the AnonymousIdentity
+    if(Principal.toText(callerId) == "2vxsx-fae") {
+      return #err(#NotAuthorized);
+    };
+
+    switch (getUser(callerId)) {
+      // Do not allow nonexistant users to rsvp
+      case null {
+        return #err(#UserNotFound);
+      };
+      case (? user) { // We found the user submitting the rsvp
+        switch(await getGathering(gatheringId)) {
+          case null {
+            return #err(#GatheringNotFound);
+          };
+          case (? gathering) { // we found a gathering to rsvp to
+            let newRsvps: [UserRsvp] = List.toArray(
+              List.append<UserRsvp>(
+                List.fromArray<UserRsvp>(gathering.info.rsvps), 
+                List.fromArray<UserRsvp>([(user, rsvp)])
+              )
+            );
+              
+            let oldValue: ?Gathering = gatherings.replace(gatheringId, {
+              id = gatheringId;
+              info = {
+                title = gathering.info.title;
+                description = gathering.info.description;
+                datetime = gathering.info.datetime;
+                address = gathering.info.address;
+                items = gathering.info.items;
+                rsvps = newRsvps;
+              };
+            });
+            return #ok(());
+          };
+        };
+      };
+    };
+  };
 };

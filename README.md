@@ -22,10 +22,11 @@ Clone that repository and build and start according to the instructions. The
 startup command is duplicated here for convenience but the Internet Identity
 readme's command should be used (and this should be updated) if they differ.
 
-Run this, updating the path to point to your local copy of internet-identity:
+Make sure Docker is running, then run this, updating the path to point to your
+local copy of internet-identity:
 
 ```bash
-cd ~/Library/CloudStorage/OneDrive-Personal/Projects/Web/internet-identity/; rm -rf .dfx; II_FETCH_ROOT_KEY=1 dfx deploy --no-wallet --argument '(null)'
+cd ~/Library/CloudStorage/OneDrive-Personal/Projects/Web/internet-identity/; rm -rf .dfx; II_FETCH_ROOT_KEY=1 dfx build; II_DUMMY_CAPTCHA=1 II_DUMMY_AUTH=1 ./scripts/docker-build
 ```
 
 Ensure that the value printed out for "Installing code for canister

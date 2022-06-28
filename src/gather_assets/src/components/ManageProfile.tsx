@@ -53,9 +53,9 @@ function ManageProfile() {
         "Are you sure you want to delete your account? This will be permanent!"
       )
     ) {
+      toast.success("Deleting profile...");
       const result = await actor?.deleteUser();
       toast.success("Profile successfully deleted");
-      console.log(result);
       navigate("/");
     }
   };
@@ -95,7 +95,7 @@ function ManageProfile() {
     <>
       {isEditing ? (
         <section key={String(isEditing)}>
-          <Heading level={2}>Editing Profile</Heading>
+          <Heading level={2}>Edit Profile</Heading>
           <ProfileForm {...formProps} />
           <ActionButton
             onPress={(e) => {
