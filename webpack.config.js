@@ -109,7 +109,7 @@ module.exports = {
     new webpack.EnvironmentPlugin({
       NODE_ENV: "development",
       II_URL: isDevelopment
-        ? "http://rrkah-fqaaa-aaaaa-aaaaq-cai.localhost:8000#authorize"
+        ? "http://r7inp-6aaaa-aaaaa-aaabq-cai.localhost:8000#authorize"
         : "https://identity.ic0.app/#authorize",
       ...canisterEnvVariables,
     }),
@@ -122,7 +122,7 @@ module.exports = {
   devServer: {
     proxy: {
       "/api": {
-        target: "http://localhost:8000",
+        target: "http://127.0.0.1:8000",
         changeOrigin: true,
         pathRewrite: {
           "^/api": "/api",
@@ -130,7 +130,26 @@ module.exports = {
       },
     },
     hot: true,
-    watchFiles: [path.resolve(__dirname, "src", frontendDirectory)],
     liveReload: true,
+    port: 3000,
+    allowedHosts: [
+      '.localhost',
+      '127.0.0.1'
+    ],
+    historyApiFallback: true,
+    static: {
+      directory: path.resolve(__dirname, "static"),
+      staticOptions: {},
+      // Don't be confused with `devMiddleware.publicPath`, it is `publicPath` for static directory
+      // Can be:
+      // publicPath: ['/static-public-path-one/', '/static-public-path-two/'],
+      publicPath: "./src/frontend",
+      // Can be:
+      // serveIndex: {} (options for the `serveIndex` option you can find https://github.com/expressjs/serve-index)
+      serveIndex: true,
+      // Can be:
+      // watch: {} (options for the `watch` option you can find https://github.com/paulmillr/chokidar)
+      watch: true,
+    },
   },
 };
