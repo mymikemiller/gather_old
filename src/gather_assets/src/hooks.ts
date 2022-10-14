@@ -15,14 +15,20 @@ export function useAuthClient(props?: UseAuthClientProps) {
 
   const ii_url = process.env.II_URL?.replace("{origin}", window.location.origin);
 
-  const login = () => {
-    authClient?.login({
-      identityProvider: ii_url,
-      onSuccess: () => {
-        setIsAuthenticated(true);
-        navigate('/loading');
-      },
-    });
+  const login = async () => {
+    const alreadyAuthenticated = await authClient?.isAuthenticated();
+    if (alreadyAuthenticated) {
+      setIsAuthenticated(true);
+      navigate('/loading');
+    } else {
+      authClient?.login({
+        identityProvider: ii_url,
+        onSuccess: () => {
+          setIsAuthenticated(true);
+          navigate('/loading');
+        },
+      });
+    }
   };
 
   const initActor = () => {
