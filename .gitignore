@@ -11,7 +11,7 @@
 .dfx/
 
 # dfx generated files that don't need to be in source control
-src/declarations
+src/declarations/
 
 # frontend code
 node_modules/
@@ -20,3 +20,5 @@ dist/
 
 internet_identity.did
 internet_identity.wasm
+*.did
+*.did.*

@@ -81,70 +81,89 @@ const App = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // At the page we first land on, record the gathering id from the search
-  // params so we know which gathering to load after login
+  // At the page we first land on, record the URL the user was attempting to
+  // load so we can navigate to it once we're logged in
   useEffect(() => {
-    const gatheringId = searchParams.get("gathering");
-    if (gatheringId) {
-      localStorage.setItem('incomingGatheringId', gatheringId);
-    } else {
-      localStorage.removeItem('incomingGatheringId');
-    }
+    console.log("Storing landing path: " + location.pathname);
+    localStorage.setItem("landingPath", location.pathname + location.search);
   }, []);
 
   useEffect(() => {
+    console.log("user changed");
     if (user && actor) {
-      const incomingGatheringId = localStorage.getItem('incomingGatheringId');
-      if (incomingGatheringId) {
-        // Load the proper rsvp page
-        navigate('/gathering/' + incomingGatheringId);
-        localStorage.removeItem("incomingGatheringId");
-      };
+      console.log("user and actor set");
+      if (compareProfiles(user.profile, emptyProfile)) {
+        // Authenticated but no profile
+        console.log("empty profile, navigating to create");
+        navigate('/create');
+      }
+
+      // We saved the landing URL when we first loaded, so navigate there now
+      // that we're logged in and have a profile
+      returnToLandingPage();
+    } else {
+      console.log("no user or no actor");
+      console.log(user);
+      console.log(actor);
     };
   }, [user]);
 
+  const returnToLandingPage = () => {
+    const landingPath = localStorage.getItem("landingPath");
+    if (landingPath) {
+      console.log("navigating to landingPath " + landingPath);
+      navigate(landingPath);
+    } else {
+      console.log("landingPath not found");
+      navigate("/");
+    };
+  };
+
   useEffect(() => {
+    console.log("actor changed");
     if (actor) {
-      console.log('actor was set');
-      actor.readUser().then((result) => {
-        if ("ok" in result) {
-          console.log('found a user');
-          // Found user profile in IC. Load Home Page.
-          setUser(result.ok);
-          if (compareProfiles(result.ok.profile, emptyProfile)) {
-            // Authenticated but no profile
-            console.log('user matches empty profile');
-            navigate('/create');
+      // We have an actor to work with, now fetch the user
+      (async () => {
+        var landingPath = localStorage.getItem("landingPath");
+        if (landingPath) {
+          console.log("landingPath: " + landingPath);
+          var userResult = await actor.readUser();
+
+          if ("ok" in userResult) {
+            console.log("userResult ok, setting user");
+            console.dir(userResult.ok);
+            // Found user in IC. 
+            setUser(userResult.ok); // This causes the user useEffect above, which will redirect us appropriately
           } else {
-            console.log('user does not match empty profile, so loading manage');
-            // Logged in with profile
-            navigate('/manage');
+            console.log("userResult not ok");
+            if ("NotAuthorized" in userResult.err) {
+              // Clear local delegation and log in
+              toast.error("Your session expired. Please reauthenticate.");
+              logout();
+            } else if ("NotFound" in userResult.err) {
+              // User has deleted account
+              if (user) {
+                toast.error("User profile not found. Please try creating again.");
+              }
+              // Authenticated but no profile
+              setUser(undefined);
+              navigate('/create');
+            } else {
+              toast.error("Error: " + Object.keys(userResult.err)[0]);
+            }
           }
         } else {
-          if ("NotAuthorized" in result.err) {
-            // Clear local delegation and log in
-            toast.error("Your session expired. Please reauthenticate.");
-            logout();
-          } else if ("UserNotFound" in result.err) {
-            // User has deleted account
-            console.log("User has deleted account");
-            if (user) {
-              console.log("Yes user");
-              toast.error("User profile not found. Please try creating again.");
-            }
-            console.log("setting user to undefined and going to create");
-            // Authenticated but no profile
-            setUser(undefined);
-            navigate('/create');
-          } else {
-            toast.error("Error: " + Object.keys(result.err)[0]);
-          }
+          console.log("landingPath null");
         }
-      });
+      })();
+    } else {
+      console.log("actor null");
     }
   }, [actor]);
 
   if (!authClient) return null;
+
+  console.log("App is returning html. user is " + user);
 
   return (
     <>
@@ -170,54 +189,44 @@ const App = () => {
         >
           <Provider theme={defaultTheme}>
             <Header>
-              <Routes>
-                <Route path="/" element={
-                  <span />
-                } />
-                <Route path="/loading" element={
-                  <span />
-                } />
-                <Route path="/manage" element={
-                  <ActionButton id="logout" onPress={logout}>
-                    Log out
-                  </ActionButton>
-                } />
-                <Route path="/create" element={
-                  <ActionButton id="logout" onPress={logout}>
-                    Log out
-                  </ActionButton>
-                } />
-                <Route path="/gathering" element={
-                  <ActionButton id="logout" onPress={logout}>
-                    Log out
-                  </ActionButton>
-                } />
-                <Route path="/gathering/:gatheringId" element={
-                  <ActionButton id="logout" onPress={logout}>
-                    Log out
-                  </ActionButton>
-                } />
-              </Routes>
-              <h2>Gather</h2>
+              {!user ? (
+                <></>
+              ) : (
+                <Routes>
+                  <Route path="/loading" element={
+                    <span />
+                  } />
+                  <Route path="*" element={
+                    <ActionButton id="logout" onPress={logout}>
+                      Log out
+                    </ActionButton>
+                  } />
+                </Routes>
+              )}
+              < h2 > Gather</h2>
             </Header>
             <Main>
               <Flex maxWidth={700} margin="2rem auto" id="main-container">
-                <Routes>
-                  <Route path="/" element={
-                    <Flex direction="column">
-                      <Home />
-                      <NotAuthenticated />
-                    </Flex>
-                  } />
-                  <Route path="gathering" element={<Outlet />}>
-                    <Route path=":gatheringId" element={<RsvpForm actor={actor!} user={user!} />} />
-                    {/* <Route path=":gatheringId/edit" element={<EditGathering />} /> */}
-                    {/* <Route path="new" element={<NewGatheringForm />} /> */}
-                  </Route>
-                  <Route path="/loading" element={<Loading />} />
-                  <Route path="/manage" element={<ManageProfile />} />
-                  <Route path="/create" element={<CreateUser />} />
-                </Routes>
+                {!isAuthenticated ? (
+                  <Flex direction="column">
+                    <Home />
+                    <NotAuthenticated />
+                  </Flex>
+                ) : (
+                  <Routes>
+                    <Route path="/" element={
+                      <Header>Welcome to Gather. Please wait...</Header>
+                    } />
+                    <Route path="gathering" element={<Outlet />}>
+                      <Route path=":gatheringId" element={<RsvpForm actor={actor!} user={user!} />} />
+                      {/* <Route path=":gatheringId/edit" element={<EditGathering />} /> */}
+                      {/* <Route path="new" element={<NewGatheringForm />} /> */}
+                    </Route>
+                    <Route path="/loading" element={<Loading />} />
+                    <Route path="/manage" element={<ManageProfile />} />
+                    <Route path="/create" element={<CreateUser />} />
+                  </Routes>
+                )}
               </Flex>
             </Main>
           </Provider>

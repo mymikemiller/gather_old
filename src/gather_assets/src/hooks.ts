@@ -17,6 +17,7 @@ export function useAuthClient(props?: UseAuthClientProps) {
 
   const login = async () => {
     const alreadyAuthenticated = await authClient?.isAuthenticated();
+    console.log("alreadyAuthenticated: " + alreadyAuthenticated);
     if (alreadyAuthenticated) {
       setIsAuthenticated(true);
       navigate('/loading');
@@ -44,16 +45,28 @@ export function useAuthClient(props?: UseAuthClientProps) {
   const logout = () => {
     setIsAuthenticated(false);
     setActor(undefined);
-    navigate('/');
+    setUser(undefined);
+    authClient?.logout({ returnTo: "/" });
   };
 
   useEffect(() => {
-    AuthClient.create().then(async (client) => {
-      // Call client.isAuthenticated for side effect purposes
-      await client.isAuthenticated();
-      setAuthClient(client);
-    });
+    if (authClient == null) {
+      AuthClient.create().then(async (client) => {
+        setAuthClient(client);
+      });
+    }
   }, []);
+
+  useEffect(() => {
+    if (authClient != null) {
+      (async () => {
+        const authenticated = await authClient?.isAuthenticated();
+        if (authenticated) {
+          setIsAuthenticated(true);
+        }
+      })();
+    }
+  }, [authClient]);
 
   useEffect(() => {
     if (isAuthenticated) initActor();
