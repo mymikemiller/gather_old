@@ -4,15 +4,15 @@ image:
 tasks:
   - before: echo "export PATH=/home/gitpod/bin/:$PATH" > ~/.bashrc && source ~/.bashrc
     init: |
-      dfx start --background
-      dfx deploy hello
+      dfx start --clean
+      dfx deploy 
+      dfx generate
+
+  - init: gp open src/App.jsx
+    command: |
       npm install
       npm start
-
-  - init: gp open src/hello_assets/src/App.jsx
-    command: |
       zsh
-      exit
   - command: echo "Welcome! We are starting up DFX and a development server for you. You should see a preview open up once it is ready"
   
 
