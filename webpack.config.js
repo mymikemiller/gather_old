@@ -3,9 +3,10 @@ const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
-
+// const canisters = require("./.dfx/local/canister_ids.json")
+let localCanisters
 function initCanisterEnv() {
-  let localCanisters, prodCanisters;
+  let  prodCanisters;
   try {
     localCanisters = require(path.resolve(
       ".dfx",
@@ -101,7 +102,8 @@ module.exports = {
     new webpack.EnvironmentPlugin({
       NODE_ENV: "development",
       II_URL: isDevelopment
-        ? "http://r7inp-6aaaa-aaaaa-aaabq-cai.localhost:8000#authorize"
+        // ? "http://r7inp-6aaaa-aaaaa-aaabq-cai.localhost:8000#authorize"
+        ? "http://" + localCanisters.internet_identity.local + ".localhost:8000#authorize"
         : "https://identity.ic0.app/#authorize",
       ...canisterEnvVariables,
     }),
